@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "outDir": "./.tmp/build/",
+        "declaration": true,
+        "strictNullChecks": false
+    },
+    "files": [
+        "./src/visual.ts"
+    ]
+}
