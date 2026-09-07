@@ -1,6 +1,11 @@
-node_modules/
-dist/
-.tmp/
+# Build artifacts of experimental-v3-rewrite/ (not shipped, see its README)
+experimental-v3-rewrite/node_modules/
+experimental-v3-rewrite/dist/
+experimental-v3-rewrite/.tmp/
+experimental-v3-rewrite/coverage/
 .vscode/
+
+# Ignore stray .pbiviz files anywhere EXCEPT the archived releases/ folder,
+# which intentionally tracks the shipped binaries as historical artifacts.
 *.pbiviz
-coverage/
+!releases/**/*.pbiviz
