@@ -15,6 +15,7 @@ export interface RendererCallbacks {
     onMoveUp: (key: string) => void;
     onMoveDown: (key: string) => void;
     onReorder: (fromIndex: number, toIndex: number) => void;
+    onCatalogScroll: (scrollTop: number) => void;
 }
 
 export interface RenderContext {
@@ -22,6 +23,8 @@ export interface RenderContext {
     order: readonly OrderedEntry[];
     expandedKeys: ReadonlySet<string>;
     settings: VisualFormattingSettingsModel;
+    /** Persisted scroll offset to restore. Only honored on the first render after construction (a fresh DOM, e.g. after report reopen) — later renders preserve whatever the user is currently looking at instead of fighting their live scroll position. */
+    catalogScrollTop: number;
 }
 
 /**
@@ -36,6 +39,7 @@ export class Renderer {
     private readonly callbacks: RendererCallbacks;
     private currentTree: CatalogTree | undefined;
     private dragFromKey: string | undefined;
+    private hasRenderedCatalogOnce = false;
 
     constructor(target: HTMLElement, callbacks: RendererCallbacks) {
         this.dom = createVisualDom(target);
@@ -47,6 +51,12 @@ export class Renderer {
         const { tree, order, expandedKeys, settings } = context;
         const visibility = settings.visibilityCard;
         this.currentTree = tree;
+
+        // renderCatalog() below fully replaces catalogList's contents, which resets scrollTop to 0.
+        // On the very first render of a fresh DOM (report reopen, page nav, resize-triggered remount)
+        // we restore the persisted offset; on every later render we just preserve whatever the user
+        // is currently looking at, so an in-progress scroll never gets yanked back by an unrelated re-render.
+        const scrollRestoreTarget = this.hasRenderedCatalogOnce ? this.dom.catalogList.scrollTop : context.catalogScrollTop;
 
         applyCssVariables(this.dom.root, buildCssVariables(settings));
 
@@ -77,6 +87,9 @@ export class Renderer {
 
         renderCatalog(this.dom.catalogList, { tree, expandedKeys, selectionOrderByKey, settings });
         renderSelectedPanel(this.dom.selectedPanelList, { order, settings });
+
+        this.dom.catalogList.scrollTop = scrollRestoreTarget;
+        this.hasRenderedCatalogOnce = true;
     }
 
     announce(message: string): void {
@@ -90,6 +103,7 @@ export class Renderer {
     private attachDelegatedListeners(): void {
         this.dom.catalogList.addEventListener("click", event => this.handleCatalogClick(event));
         this.dom.catalogList.addEventListener("keydown", event => this.handleCatalogKeydown(event));
+        this.dom.catalogList.addEventListener("scroll", () => this.callbacks.onCatalogScroll(this.dom.catalogList.scrollTop), { passive: true });
 
         this.dom.toolbar.addEventListener("click", event => this.handleToolbarClick(event));
 

@@ -1,10 +1,10 @@
 {
     "visual": {
         "name": "orderedFieldParameterSelector",
-        "displayName": "Ordered FP Selector by LVMH Beauty Tech Iberia v2.3",
+        "displayName": "Ordered FP Selector by LVMH Beauty Tech Iberia v3.1",
         "guid": "orderedFieldParameterSelectorD10670849B7345FAA12E5EBB2AD0E3BA",
         "visualClassName": "Visual",
-        "version": "2.3.0.0",
+        "version": "3.1.0.0",
         "description": "Ordered Field Parameter slicer by LVMH Beauty Tech Iberia with a dedicated, debounced state engine (StateManager/StateRepository/PersistScheduler) for race-safe persistence of click order, expansion, selection and catalog scroll position across refresh, filters, bookmarks, page navigation, resize, and report reopen.",
         "supportUrl": "https://learn.microsoft.com/power-bi/developer/visuals/",
         "gitHubUrl": ""

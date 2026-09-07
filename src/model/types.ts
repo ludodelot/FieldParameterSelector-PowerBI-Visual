@@ -50,7 +50,7 @@ export interface OrderedEntry {
 /**
  * Versioned shape of the state this visual persists. Split across the three
  * "state" object properties declared in capabilities.json:
- *  - stateJson: the envelope { version, timestamp } used as the change signature
+ *  - stateJson: the envelope { version, timestamp, scrollTop } used as the change signature
  *  - orderJson: JSON-encoded OrderedEntry[]
  *  - expandedJson: JSON-encoded string[] of expanded domain/group keys
  */
@@ -59,6 +59,8 @@ export interface PersistedStateV1 {
     timestamp: number;
     order: OrderedEntry[];
     expanded: string[];
+    /** Vertical scroll offset (px) of the catalog pane, restored after reload/reopen. */
+    catalogScrollTop: number;
 }
 
 export const STATE_SCHEMA_VERSION = 1 as const;
