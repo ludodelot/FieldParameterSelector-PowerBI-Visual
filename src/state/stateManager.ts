@@ -12,7 +12,7 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 const DEBOUNCE_MS = 350;
 
 function emptyState(): PersistedStateV1 {
-    return { version: STATE_SCHEMA_VERSION, timestamp: Date.now(), order: [], expanded: [], catalogScrollTop: 0 };
+    return { version: STATE_SCHEMA_VERSION, timestamp: Date.now(), order: [], expanded: [] };
 }
 
 function collectValidNodeKeys(tree: CatalogTree): Set<string> {
@@ -32,7 +32,6 @@ function collectValidNodeKeys(tree: CatalogTree): Set<string> {
 export class StateManager {
     readonly orderedSelection = new OrderedSelectionModel();
     private expandedKeys = new Set<string>();
-    private catalogScrollTop = 0;
 
     private readonly repository: StateRepository;
     private readonly scheduler: PersistScheduler;
@@ -71,10 +70,6 @@ export class StateManager {
 
     isSelected(key: string): boolean {
         return this.orderedSelection.has(key);
-    }
-
-    getCatalogScrollTop(): number {
-        return this.catalogScrollTop;
     }
 
     // ---- main synchronization entry point (called once per update(), never persists) ----
@@ -136,8 +131,7 @@ export class StateManager {
     applyState(state: PersistedStateV1): void {
         this.orderedSelection.replace(state.order);
         this.expandedKeys = new Set(state.expanded);
-        this.catalogScrollTop = state.catalogScrollTop;
-        stateLog("state applied to canonical StateManager", { orderCount: state.order.length, expandedCount: state.expanded.length, catalogScrollTop: state.catalogScrollTop });
+        stateLog("state applied to canonical StateManager", { orderCount: state.order.length, expandedCount: state.expanded.length });
     }
 
     /** After a tree rebuild, drop selections/expansion referencing nodes that no longer exist. Preserves relative order of survivors. Marks dirty only if something actually changed. */
@@ -250,16 +244,6 @@ export class StateManager {
         this.markDirty("collapse all");
     }
 
-    /** Called on the catalog pane's scroll event. Rounded to the pixel so tiny sub-pixel jitter doesn't keep marking state dirty. */
-    setCatalogScrollTop(value: number): void {
-        const rounded = Math.max(0, Math.round(value));
-        if (rounded === this.catalogScrollTop) {
-            return;
-        }
-        this.catalogScrollTop = rounded;
-        this.markDirty(`catalog scroll position changed: ${rounded}`);
-    }
-
     // ---- dirty tracking / debounce ---------------------------------------------------
 
     markDirty(reason: string): void {
@@ -286,8 +270,7 @@ export class StateManager {
             version: STATE_SCHEMA_VERSION,
             timestamp: Date.now(),
             order: [...this.orderedSelection.getAll()],
-            expanded: [...this.expandedKeys],
-            catalogScrollTop: this.catalogScrollTop
+            expanded: [...this.expandedKeys]
         };
 
         if (statesAreEqual(this.lastWrittenState, candidate)) {

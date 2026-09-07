@@ -53,8 +53,7 @@ export class Visual implements IVisual {
             onRemoveSelection: key => this.handleRemoveSelection(key),
             onMoveUp: key => this.handleMoveUp(key),
             onMoveDown: key => this.handleMoveDown(key),
-            onReorder: (fromIndex, toIndex) => this.handleReorder(fromIndex, toIndex),
-            onCatalogScroll: scrollTop => this.stateManager.setCatalogScrollTop(scrollTop)
+            onReorder: (fromIndex, toIndex) => this.handleReorder(fromIndex, toIndex)
         };
         this.renderer = new Renderer(options.element, callbacks);
     }
@@ -236,8 +235,7 @@ export class Visual implements IVisual {
             tree: this.tree,
             order: this.stateManager.getOrder(),
             expandedKeys: this.stateManager.getExpandedKeys(),
-            settings: this.formattingSettings,
-            catalogScrollTop: this.stateManager.getCatalogScrollTop()
+            settings: this.formattingSettings
         });
     }
 }

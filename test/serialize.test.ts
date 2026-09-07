@@ -7,7 +7,6 @@ function makeState(overrides: Partial<PersistedStateV1> = {}): PersistedStateV1 
         timestamp: 1000,
         order: [{ key: "k1", label: "Item 1", value: "Item 1", selectedAt: 1000 }],
         expanded: ["d:Domain"],
-        catalogScrollTop: 0,
         ...overrides
     };
 }
@@ -45,19 +44,6 @@ describe("state serialize/deserialize", () => {
         const restored = deserializeState(raw);
         expect(restored?.order).toHaveLength(1);
     });
-
-    it("round-trips a non-zero catalogScrollTop", () => {
-        const state = makeState({ catalogScrollTop: 240 });
-        const raw = serializeState(state);
-        const restored = deserializeState(raw);
-        expect(restored?.catalogScrollTop).toBe(240);
-    });
-
-    it("defaults catalogScrollTop to 0 when the envelope predates scroll tracking", () => {
-        const raw = { stateJson: JSON.stringify({ version: 1, timestamp: 1 }), orderJson: "[]", expandedJson: "[]" };
-        const restored = deserializeState(raw);
-        expect(restored?.catalogScrollTop).toBe(0);
-    });
 });
 
 describe("statesAreEqual", () => {
@@ -77,12 +63,6 @@ describe("statesAreEqual", () => {
         const a = makeState({ expanded: ["x", "y"] });
         const b = makeState({ expanded: ["y", "x"] });
         expect(statesAreEqual(a, b)).toBe(true);
-    });
-
-    it("detects catalogScrollTop changes", () => {
-        const a = makeState({ catalogScrollTop: 0 });
-        const b = makeState({ catalogScrollTop: 120 });
-        expect(statesAreEqual(a, b)).toBe(false);
     });
 });
 

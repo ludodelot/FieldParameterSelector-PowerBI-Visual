@@ -10,8 +10,6 @@ export interface RawStateProperties {
 interface StateEnvelope {
     version: number;
     timestamp: number;
-    /** Optional for backward compatibility with envelopes written before scroll-position tracking was added. */
-    scrollTop?: number;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -44,11 +42,10 @@ export function parseEnvelope(json: string | undefined): StateEnvelope | undefin
         }
         const version = parsed["version"];
         const timestamp = parsed["timestamp"];
-        const scrollTop = parsed["scrollTop"];
         if (typeof version !== "number" || typeof timestamp !== "number") {
             return undefined;
         }
-        return { version, timestamp, scrollTop: typeof scrollTop === "number" && Number.isFinite(scrollTop) ? scrollTop : undefined };
+        return { version, timestamp };
     } catch (error) {
         stateLog("envelope (stateJson) parse failed, ignoring", error);
         return undefined;
@@ -117,14 +114,13 @@ export function deserializeState(raw: RawStateProperties): PersistedStateV1 | un
         version: STATE_SCHEMA_VERSION,
         timestamp: envelope?.timestamp ?? 0,
         order,
-        expanded,
-        catalogScrollTop: envelope?.scrollTop ?? 0
+        expanded
     };
 }
 
 export function serializeState(state: PersistedStateV1): RawStateProperties {
     return {
-        stateJson: JSON.stringify({ version: state.version, timestamp: state.timestamp, scrollTop: state.catalogScrollTop }),
+        stateJson: JSON.stringify({ version: state.version, timestamp: state.timestamp }),
         orderJson: JSON.stringify(state.order),
         expandedJson: JSON.stringify(state.expanded)
     };
@@ -158,7 +154,7 @@ export function statesAreEqual(a: PersistedStateV1 | undefined, b: PersistedStat
             return false;
         }
     }
-    return Math.round(a.catalogScrollTop) === Math.round(b.catalogScrollTop);
+    return true;
 }
 
 /**
@@ -179,9 +175,5 @@ export function validateStateAgainstTree(
     if (expanded.length !== state.expanded.length) {
         stateLog(`validate: dropped ${state.expanded.length - expanded.length} stale expanded key(s)`);
     }
-    const catalogScrollTop = Number.isFinite(state.catalogScrollTop) && state.catalogScrollTop >= 0 ? state.catalogScrollTop : 0;
-    if (catalogScrollTop !== state.catalogScrollTop) {
-        stateLog("validate: invalid catalogScrollTop, resetting to 0");
-    }
-    return { ...state, order, expanded, catalogScrollTop };
+    return { ...state, order, expanded };
 }

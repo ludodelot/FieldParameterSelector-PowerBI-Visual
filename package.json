@@ -1,6 +1,6 @@
 {
   "name": "ordered-field-parameter-selector",
-  "version": "3.1.0.0",
+  "version": "2.3.0.0",
   "description": "Ordered Field Parameter slicer by LVMH Beauty Tech Iberia with race-safe, debounced state persistence.",
   "scripts": {
     "pbiviz": "pbiviz",
