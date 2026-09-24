@@ -1,0 +1,17 @@
+{
+    "Visual_Header_Title": "Dimensiones",
+    "Visual_Reset": "Restablecer",
+    "Visual_Clear": "Borrar",
+    "Visual_Instructions": "El orden de clic define el orden de las dimensiones en la matriz.",
+    "Visual_Empty": "Agrega una columna del parámetro de campo al campo Field Parameter. Área y Grupo son opcionales.",
+    "Visual_SelectedPanel_Title": "Orden en la matriz",
+    "Visual_Catalog_Title": "Catálogo",
+    "Visual_MustKeepOne": "Debe quedar al menos una dimensión seleccionada.",
+    "Visual_MoveUp": "Subir",
+    "Visual_MoveDown": "Bajar",
+    "Visual_Remove": "Quitar",
+    "Visual_Toolbar_CollapseAll": "Contraer todo",
+    "Visual_Toolbar_ShowAreas": "Mostrar áreas",
+    "Visual_Toolbar_ShowAreasAndGroups": "Mostrar áreas y grupos",
+    "Visual_Toolbar_ExpandAll": "Expandir todo"
+}

@@ -1,41 +1,57 @@
-# Architecture status — source vs. shipped binary
+# Architecture
 
-This document exists so nobody repeats the mistake that produced (and then required reverting) v3.1.0.0. Read it before touching `experimental-v3-rewrite/`.
+## Source history
 
-## The situation, plainly
+Up to v2.7.1.0 the visual existed only as compiled `.pbiviz` packages; the original TypeScript project was lost. Earlier versions of this document claimed the shipped binary used a simple one-shot `hasLoadedPersistedState` flag instead of a state engine. That was wrong: the decompiled bundle ([`decompiled/v2.7.1.0/visual.js`](decompiled/v2.7.1.0/visual.js)) contains a full state layer — StateManager (webpack module 626), StateRepository (129), a 300 ms PersistScheduler (623), and a serializer/validator/equality/defaults set (433/467/794/932, schemaVersion 2). The `hasLoadedPersistedState` flag wrapped that engine and was the cause of several bugs.
 
-- The visual that actually works and ships — v2.2.0.0, v2.3.0.0, and now v2.7.1.0 — exists **only as a compiled `.pbiviz` binary**. Its original TypeScript project source is lost.
-- A separate GitHub session, working without access to that binary, built a from-scratch reimplementation (`experimental-v3-rewrite/`) that it *believed* corresponded to v2.3.0.0, because the two projects happen to share the same `pbiviz.json` marketing description text.
-- They do not correspond. Decompiling the real v2.3.0.0 binary (`docs/decompiled/v2.7.1.0/visual.css`, extracted 2026-09-07) and diffing it against `experimental-v3-rewrite/style/visual.less` shows:
-  - Different CSS class names throughout (`.row` / `.badge` / `.group-header` / `.catalog-scroll` in the real binary vs. `.ofps-item-row` / `.ofps-position-badge` / `.ofps-group-header` / `.ofps-catalog-list` in the rewrite).
-  - Different default sizing (9px item font vs. 12px, 13px badges vs. 18px, 3px outer padding vs. 8px, 18px row height vs. 28px).
-  - Different state-persistence engine: the real binary uses a simple `hasLoadedPersistedState` one-shot flag; the rewrite implements a considerably more sophisticated `StateManager` / `StateRepository` / `PersistScheduler` engine with debouncing, dirty-flag tracking, echo-of-own-write detection, and full unit test coverage.
+v3.2.0.0 rebuilds an editable source in [`visual/`](../visual/) from that bundle:
 
-Building and shipping `experimental-v3-rewrite/` as "the visual" is what produced v3.1.0.0, which looked broken to an end user comparing it against the real v2.3.0.0 they were used to. That commit was reverted the same day.
+- the formatting model, CSS, DOM structure, class names and defaults were ported 1:1, so the visual looks the same as v2.7.1.0 (the stylesheet is the shipped CSS verbatim, plus one `:focus-visible` rule);
+- the update/state logic was rewritten to fix the issues found in the audit of the bundle.
 
-## What v2.7.1.0 actually is
+The old `experimental-v3-rewrite/` folder (a different, from-scratch reimplementation with another DOM and sizing) was removed; it is still in git history.
 
-v2.7.1.0 is **not a rebuild**. It is the real, verified-working v2.3.0.0 binary with only its metadata edited directly (no source recompilation involved):
+## Modules (`visual/src`)
 
-- `visual.version`: `2.3.0.0` → `2.7.1.0`
-- `visual.displayName`: `Ordered FP Selector by LVMH Beauty Tech Iberia v2.3` → `Ordered FP Selector`
-- `visual.description`: rewritten to drop the LVMH mention and the inaccurate "StateManager/StateRepository/PersistScheduler" claim (see above — the real binary doesn't have that engine)
-- `visual.supportUrl` / `visual.gitHubUrl`: point at this repository
-- `author`: `LVMH Beauty Tech Iberia` → `Ludovic Delot Bravo`
-- `content.iconBase64`: replaced with the new list-glyph icon (`assets/icon.png`)
-- The embedded `content.css` and `content.js` — the actual visual behavior — were **not touched**.
+| Module | Role |
+|---|---|
+| `visual.ts` | Power BI entry point. Reads the update, feeds the controller, renders, and always ends with `renderingFinished` or `renderingFailed`. |
+| `selectorController.ts` | Selection, expansion and persistence logic. No DOM and no host object, so tests can drive it with simulated update sequences. |
+| `model/catalog.ts` | Builds the catalog from the dataView: item keys, sorting, default item, expansion keys. |
+| `filter/identityFilter.ts` | Builds and reads the identity filter, and maps its targets back to item keys. |
+| `state/persistedState.ts` | Persisted format (schema v3) and migration from v1 (`orderJson` / `expandedJson`) and v2. |
+| `state/stateRepository.ts` | Reads `state.stateJson` from the dataView metadata; writes it with `persistProperties`. |
+| `state/stateStore.ts` | Immutable in-memory state with a 300 ms persist debounce. Remembers its recent writes to recognize their echoes. |
+| `render/renderer.ts`, `render/keyboard.ts`, `render/cssVariables.ts` | DOM, keyboard navigation and CSS custom properties. |
+| `settings.ts`, `viewSettings.ts` | Formatting pane model and its flattened, read-only view. |
+| `strings.ts` + `stringResources/` | UI strings (en-US, es-ES). |
 
-You can verify this yourself: `docs/decompiled/v2.7.1.0/visual.css` and `visual.js` are byte-for-byte extracts of what's inside `releases/v2.7.1.0/orderedFieldParameterSelector.2.7.1.0.pbiviz`, and (aside from the icon/metadata swap) match `releases/v2.3.0.0/orderedFieldParameterSelector.2.3.0.0.pbiviz`'s payload exactly.
+## State model
 
-## If someone wants to properly reconstruct editable source later
+Two things are persisted by Power BI on the visual's behalf:
 
-This is real work, not a quick pass — treat it as its own project, not a side task bundled into an unrelated fix:
+1. **The filter** (`general.filter`): an identity filter whose targets are dataView row indices in click order. Field parameters display fields in that order, which is what makes the click order drive the matrix.
+2. **The state** (`state.stateJson`): click order (item keys = labels), expanded area/group keys, scroll position, and `applied` — the `[rowIndex, key]` pairs of the last filter the visual applied.
 
-1. Start from `docs/decompiled/v2.7.1.0/visual.css` and `visual.js` as ground truth, not from `experimental-v3-rewrite/`.
-2. Rebuild the DOM/CSS layer (`.root`, `.catalog-scroll`, `.header`, `.selected-panel`, `.row`, `.badge`, `.group-header`, `.toolbar`, etc. — see the class names in the decompiled CSS) to pixel-match the real thing, verified by side-by-side screenshots against `releases/v2.7.1.0/`, not by assumption.
-3. Only then decide whether to keep the real binary's simpler `hasLoadedPersistedState` persistence model (safer, matches the original exactly) or deliberately upgrade to something like `experimental-v3-rewrite/`'s `StateManager` engine — as a conscious, separately-reviewed decision, not a silent side effect of a visual refresh.
-4. Verify with `pbiviz package` + a byte/behavior diff against the real binary before calling it done, exactly like this document did for the metadata-only v2.7.1.0 change.
+Rules the controller follows:
 
-## Why this matters
+- **The filter decides membership** whenever it is present. Targets equal to the recorded `applied` indices are resolved through the recorded keys, so a row shift (new Field Parameter row, cross-filtered subset) cannot select the wrong fields. Other targets are resolved through the current rows.
+- **The state is re-read whenever it changes externally.** A `stateJson` value the visual did not write (bookmark, Reset to default, Desktop undo) is loaded. Echoes of its own writes are recognized in order and ignored.
+- **Updates without rows are ignored.** Refresh-in-flight and query-pending updates never touch the state.
+- **Keys absent from the current data are kept**, so a cross-filter does not wipe the order.
+- **Load**: the visual is ready as soon as a filter arrives with data. Without one, it waits 500 ms (a grace period for a late filter), then re-applies the saved click order, or applies the default item.
+- **Echo handling**: after applying a filter, updates that still carry one of the visual's earlier applies are ignored until the latest apply is echoed (safety cap 30 s). Updates carrying the filter from before the apply are ignored for 3 s; after that, a filter equal to it is treated as an external change.
+- **External clear** (filter removed from outside): with *Require at least one dimension* the selection is re-applied. Otherwise it is cleared so the UI matches the unfiltered report.
+- **Expansion**: *Expand catalog fully on load* only seeds visuals without saved state. Selected paths are expanded only when an item becomes selected, never on unrelated updates, so user collapses stick.
+- **Persistence**: selection and expansion changes are written after a 300 ms debounce. Scrolling alone never calls `persistProperties`; the position is saved with the next real change.
 
-The person using this visual has been burned once already by a rebuild that "looked done" (typechecked, linted, tests passed) but was visually wrong because nobody checked it against the real artifact. The fix going forward is procedural, not just historical: **any future change to this visual must be diffed against the actual shipped binary** (`releases/v2.7.1.0/` or later), not just against its own test suite.
+## Build
+
+```bash
+cd visual
+npm install
+npm run verify    # typecheck + lint + 81 Jest tests
+npm run package   # dist/orderedFieldParameterSelectorD10670849B7345FAA12E5EBB2AD0E3BA.<version>.pbiviz
+```
+
+The GUID `orderedFieldParameterSelectorD10670849B7345FAA12E5EBB2AD0E3BA` must never change. Existing reports upgrade in place only while it stays the same.

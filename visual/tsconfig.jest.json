@@ -1,0 +1,4 @@
+{
+    "extends": "./tsconfig.typecheck.json",
+    "compilerOptions": { "allowJs": true, "isolatedModules": false }
+}
