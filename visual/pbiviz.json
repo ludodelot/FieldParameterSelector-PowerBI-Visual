@@ -4,7 +4,7 @@
         "displayName": "Ordered FP Selector",
         "guid": "orderedFieldParameterSelectorD10670849B7345FAA12E5EBB2AD0E3BA",
         "visualClassName": "Visual",
-        "version": "3.2.0.0",
+        "version": "3.2.1.0",
         "description": "Ordered Field Parameter slicer for Power BI: pick catalog items in the order you click them, reorder them, and keep that order, expansion state, and catalog scroll position persisted across refresh, filters, bookmarks, page navigation, resize, and report reopen.",
         "supportUrl": "https://github.com/ludodelot/FieldParameterSelector-PowerBI-Visual",
         "gitHubUrl": "https://github.com/ludodelot/FieldParameterSelector-PowerBI-Visual"
@@ -22,5 +22,5 @@
     "capabilities": "capabilities.json",
     "dependencies": null,
     "stringResources": [],
-    "version": "3.2.0.0"
+    "version": "3.2.1.0"
 }
