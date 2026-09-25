@@ -4,7 +4,7 @@
 
 <img src="docs/icon-preview.png" width="88" height="88" alt="Ordered FP Selector icon" />
 
-[Download v3.2.0.0](releases/v3.2.0.0/orderedFieldParameterSelector.3.2.0.0.pbiviz) · [Installation](#quick-start) · [How it works](#how-selection-and-order-work) · [Changelog](CHANGELOG.md)
+[Download v3.2.1.0](releases/v3.2.1.0/orderedFieldParameterSelector.3.2.1.0.pbiviz) · [Installation](#quick-start) · [How it works](#how-selection-and-order-work) · [Release notes](docs/RELEASE_NOTES_v3.2.1.0.md)
 
 > **At a glance:** Click **Region → Brand → Product** to make that your selected order. Use the ↑/↓ controls to change it to **Brand → Region → Product** without removing and reselecting fields. The visual applies a Power BI identity filter in that order to the Field Parameter.
 
@@ -24,7 +24,7 @@ The project is distributed as a `.pbiviz` file for manual import. It is **not li
 
 1. In Power BI Desktop, create a Field Parameter with **Modeling → New parameter → Fields**. Add the fields you want readers to choose. See [Microsoft's Field Parameter guide](https://learn.microsoft.com/en-us/power-bi/create-reports/power-bi-field-parameters) if you are starting from a new report.
 2. Put that Field Parameter in the field well of the visual you want to control, such as the **Rows** well of a matrix. Keep the same parameter available for the selector.
-3. [Download the current `.pbiviz`](releases/v3.2.0.0/orderedFieldParameterSelector.3.2.0.0.pbiviz). Enable **Developer mode** for the current Power BI Desktop session, then choose **… → Import a visual from a file** in the **Visualizations** pane and select the downloaded file. [Microsoft documents the file-import flow and Developer mode requirement here](https://learn.microsoft.com/en-us/power-bi/developer/visuals/import-visual).
+3. [Download the current `.pbiviz`](releases/v3.2.1.0/orderedFieldParameterSelector.3.2.1.0.pbiviz). Enable **Developer mode** for the current Power BI Desktop session, then choose **… → Import a visual from a file** in the **Visualizations** pane and select the downloaded file. [Microsoft documents the file-import flow and Developer mode requirement here](https://learn.microsoft.com/en-us/power-bi/developer/visuals/import-visual).
 4. Add **Ordered FP Selector** to the page. Drag the **visible label column** of your Field Parameter into its required **Field Parameter** role.
 5. Click items in the selector and confirm that the other visual changes. If your parameter contains *Region*, *Brand*, and *Product*, clicking them in that order produces a selected list of `Region → Brand → Product`; use ↑/↓ to rearrange it.
 
@@ -44,7 +44,7 @@ flowchart LR
 
 For example, a catalog might display `Brand, Product, Region`, while a reader selects `Region → Brand`. The selected-order panel shows `Region → Brand`, and moving Brand up changes it to `Brand → Region`.
 
-The visual stores the selected order, expanded catalog sections, and scroll position in Power BI's visual state. Selection and expansion changes persist the state; **scrolling by itself does not mark the report as modified**. The scroll position is saved with the next selection or expansion change. Version 3.2.0.0 fixes restoration across refresh, filters, bookmarks, page navigation, resize, and reopening a report; see the [changelog](CHANGELOG.md) for the detailed behavior.
+The visual stores the selected order, expanded catalog sections, and scroll position in Power BI's visual state. Selection and expansion changes persist the state; **scrolling by itself does not mark the report as modified**. The scroll position is saved with the next selection or expansion change. Version 3.2.0.0 introduced the restoration fixes across refresh, filters, bookmarks, page navigation, resize, and reopening a report. Version 3.2.1.0 has the same runtime behavior; see its [release notes](docs/RELEASE_NOTES_v3.2.1.0.md) and the [changelog](CHANGELOG.md).
 
 ## Data roles
 
@@ -97,7 +97,7 @@ Internal `stateJson`, `orderJson`, and `expandedJson` properties are storage fie
 
 ## Release and source
 
-**Current version: 3.2.0.0.** Its package is [`releases/v3.2.0.0/orderedFieldParameterSelector.3.2.0.0.pbiviz`](releases/v3.2.0.0/orderedFieldParameterSelector.3.2.0.0.pbiviz). The same visual GUID is retained for upgrades in existing reports. Earlier packages are kept in [`releases/`](releases/); consult the [changelog](CHANGELOG.md) before using one. Version 3.1.0.0 was reverted and should not be installed.
+**Current version: 3.2.1.0.** Its package is [`releases/v3.2.1.0/orderedFieldParameterSelector.3.2.1.0.pbiviz`](releases/v3.2.1.0/orderedFieldParameterSelector.3.2.1.0.pbiviz). This is a documentation and packaging release with the same runtime as v3.2.0.0. The visual GUID is retained for upgrades in existing reports. Earlier packages are kept in [`releases/`](releases/); consult the [release notes](docs/RELEASE_NOTES_v3.2.1.0.md) and [changelog](CHANGELOG.md) before using one. Version 3.1.0.0 was reverted and should not be installed.
 
 The editable TypeScript source is in [`visual/`](visual/). The [architecture guide](docs/ARCHITECTURE.md) explains the filter, persisted state, and source history. To verify or package it locally:
 

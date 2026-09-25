@@ -2,7 +2,13 @@
 
 All notable version history for the Ordered FP Selector Power BI custom visual. Dates use the timezone/date of the authoring session (2026-09-07 for the entries added that day).
 
-## [3.2.0.0] — 2026-09-24 — Current release
+## [3.2.1.0] — 2026-09-25 — Current release
+
+Documentation and packaging release. The README now provides a guided setup, an explanation of catalog order versus selected order, controls, limits, and troubleshooting. The [detailed release notes](docs/RELEASE_NOTES_v3.2.1.0.md) document installation, upgrade expectations, verification, and the behavior inherited from v3.2.0.0.
+
+The visual version changed to `3.2.1.0` and npm package version to `3.2.1`. Its parsed `.pbiviz` payload is identical to v3.2.0.0 except for `visual.version`: no runtime, CSS, capabilities, translation, or asset changes. The GUID and saved-state schema remain unchanged. Typecheck, lint, and all 81 Jest tests passed; the new package has not been tested in a live Power BI report during this release process.
+
+## [3.2.0.0] — 2026-09-24 — Superseded by 3.2.1.0
 
 First version built from an editable, tested source (`visual/`), rebuilt from the decompiled v2.7.1.0 bundle. Same look as v2.7.1.0 (same CSS, class names, defaults and formatting options), with the refresh and persistence problems from the audit fixed. Same GUID, so existing reports upgrade in place.
 
