@@ -1,0 +1,26 @@
+{
+    "visual": {
+        "name": "orderedFieldParameterSelectorHorizontal",
+        "displayName": "Ordered FP Selector (Horizontal)",
+        "guid": "orderedFieldParameterSelectorHorizontal7A3F2C91D5E84B60A1C9E2F4B8D07135",
+        "visualClassName": "Visual",
+        "version": "1.0.0.0",
+        "description": "Horizontal Ordered Field Parameter slicer for Power BI: areas as tabs, groups and dimensions as chips, and a chip strip with the selected order that can be reordered by drag and drop or arrows. Saves vertical space.",
+        "supportUrl": "https://github.com/ludodelot/FieldParameterSelector-PowerBI-Visual",
+        "gitHubUrl": "https://github.com/ludodelot/FieldParameterSelector-PowerBI-Visual"
+    },
+    "apiVersion": "5.11.0",
+    "author": {
+        "name": "Ludovic Delot Bravo",
+        "email": "ludovicdelot99@gmail.com"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "externalJS": null,
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": [],
+    "version": "1.0.0.0"
+}

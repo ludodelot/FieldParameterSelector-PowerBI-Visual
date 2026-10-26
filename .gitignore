@@ -10,3 +10,10 @@ visual/webpack.statistics.*.html
 # which intentionally tracks the shipped binaries.
 *.pbiviz
 !releases/**/*.pbiviz
+
+# Build artifacts of visual-horizontal/
+visual-horizontal/node_modules/
+visual-horizontal/dist/
+visual-horizontal/.tmp/
+visual-horizontal/coverage/
+visual-horizontal/webpack.statistics.*.html
